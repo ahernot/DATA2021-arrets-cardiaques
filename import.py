@@ -1,19 +1,36 @@
 import pandas as pd
-import matplotlib.pyplot as plt
 
 import os
 
+from visualisation import plot_df
 from preferences import *
 
+SRC_PATH = 'src'
 
-DATA_PATH = 'src/data-2'
+
+class ImportManager:
+
+    def __init__ (self, data_folder='data-2'):
+        self.df_clean   = None
+        self.df_anomaly = None
+        self.df_attack  = None
+
+    def import_ (self, data_types: dict):
+        pass
+
+
+
+
+
 data_types = {
     'clean': 0,
     'anomaly': 1,
     'attack': 2
 }
 
-data_types = {'attack': 2}
+# data_types = {'attack': 2}
+# data_types = {'anomaly': 1}
+data_types = {'clean': 0}
 
 
 df_full = pd.DataFrame()
@@ -28,10 +45,7 @@ for data_type in data_types.keys():
 
 
 df_full.reset_index(inplace=True)
-        
+plot_df(df_full) 
 
 
-plt.figure(figsize=(15, 10))
-plt.plot(df_full.index, df_full['Pouls'])
-plt.plot(df_full.index, df_full['SpO2'])
-plt.show()
+
