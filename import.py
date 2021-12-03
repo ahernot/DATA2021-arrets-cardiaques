@@ -18,10 +18,6 @@ class ImportManager:
     def import_ (self, data_types: dict):
         pass
 
-
-
-
-
 data_types = {
     'clean': 0,
     'anomaly': 1,
@@ -32,20 +28,23 @@ data_types = {
 # data_types = {'anomaly': 1}
 data_types = {'clean': 0}
 
+data_list = list()
+data_path = os.path.join(SRC_PATH, 'data-2')
 
-df_full = pd.DataFrame()
 for data_type in data_types.keys():
-    dirpath = os.path.join(DATA_PATH, data_type)
+    dirpath = os.path.join(data_path, data_type)
 
     for file in os.listdir(dirpath):
         filepath = os.path.join(dirpath, file)
         df = pd.read_csv(filepath)
 
-        df_full = pd.concat((df_full, df))
 
+        df = df[SELECTED_FEATURES]
+        plot_df(df)
 
-df_full.reset_index(inplace=True)
-plot_df(df_full) 
+        # Add label column
+        label_val = data_types[data_type]
+        label = pd.DataFrame(label_val, index=df.index, columns=['label'])
+        df = pd.concat((df, label), axis=1)
 
-
-
+        print(df)
