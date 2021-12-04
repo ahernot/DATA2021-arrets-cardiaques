@@ -24,6 +24,11 @@ class Data:
         self.labels = list(data_dict.keys())
         self.__data_dict = data_dict
 
+        self.__data_train_dict  = None
+        self.__data_test_dict   = None
+        self.__data_wtrain_dict = None
+        self.__data_wtest_dict  = None
+
         # self.features ?
 
     # def __repr__ (self):
@@ -31,8 +36,12 @@ class Data:
 
     def __getitem__ (self, kind):
         if   kind.lower() == 'all':   return self.__data_dict
-        elif kind.lower() == 'train': return self.__data_train_dict
-        elif kind.lower() == 'test':  return self.__data_test_dict
+        elif kind.lower() == 'train':
+            if self.__data_wtrain_dict: return self.__data_wtrain_dict
+            else: return self.__data_train_dict
+        elif kind.lower() == 'test': 
+            if self.__data_wtest_dict: return self.__data_wtest_dict
+            else: return self.__data_test_dict
 
     @classmethod
     def from_folder (cls, dirpath, labels, **kwargs):
@@ -115,3 +124,46 @@ class Data:
             self.__data_train_dict[label_str] = dict(( (label, self.__data_dict[label_str][label]) for label in datapoints_train))
             self.__data_test_dict[label_str]  = dict(( (label, self.__data_dict[label_str][label]) for label in datapoints_test))
 
+
+    def make_windows(self, window_size: int):
+        # only applied to train and test data
+        if not self.__data_train_dict: return
+        
+        self.__data_wtrain_dict, self.__data_wtest_dict = dict(), dict()
+        for label_str in self.labels:
+
+            # Init windowed dictionaries
+            self.__data_wtrain_dict[label_str] = dict()
+            self.__data_wtest_dict[label_str]  = dict()
+
+            # Get datapoints
+            datapoints_train = list(self.__data_train_dict[label_str].keys())
+            datapoints_test  = list(self.__data_test_dict[label_str].keys())
+
+            for datapoint in datapoints_train:
+                df = self.__data_train_dict[label_str][datapoint]
+
+                window_start = 0
+                wid = 0
+                while window_start + window_size <= df.shape[0]:
+                    self.__data_wtrain_dict[label_str][f'{datapoint}-{wid}'] = df[window_start:window_start+window_size]
+                    window_start += window_size
+                    wid += 1
+
+            for datapoint in datapoints_test:
+                df = self.__data_test_dict[label_str][datapoint]
+
+                window_start = 0
+                wid = 0
+                while window_start + window_size <= df.shape[0]:
+                    self.__data_wtest_dict[label_str][f'{datapoint}-{wid}'] = df[window_start:window_start+window_size]
+                    window_start += window_size
+                    wid += 1
+
+
+
+# data = Data.from_folder('src/data-2', labels=label_dict, features=SELECTED_FEATURES)
+# data.split_train_test()
+# print(data['train']['clean'].__len__())
+# data.make_windows(window_size=100)
+# print(data['train']['clean'].__len__())
