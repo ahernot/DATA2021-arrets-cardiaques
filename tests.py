@@ -7,6 +7,7 @@ from preferences import *
 
 data = Data.from_folder('src/data-2', labels=label_dict, features=SELECTED_FEATURES)
 data.split_train_test()
+data.make_windows(window_size=100)
 
 PRINT_DATA_LEN = False
 if PRINT_DATA_LEN:
@@ -68,32 +69,37 @@ if PLOT_FOURIER:
 
 
 
+
+
+
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
 
-print('CLEAN------------------')
-
-data_sel = data['all']['clean']
-for data_key in list(data_sel.keys()):
-    a = data_sel[data_key] [['Pouls', 'SpO2']].to_numpy()
-    print(a.shape)
-
+data_sel = data['train']['clean']
 X_clean = np.array([ data_sel[data_key] [['Pouls', 'SpO2']].to_numpy() for data_key in list(data_sel.keys()) ])
-print(X_clean.shape)
 y_clean = np.zeros (X_clean.shape[0], dtype=np.int)
 
-print('ANOMALY------------------')
-data_sel = data['all']['anomaly']
+data_sel = data['train']['anomaly']
 X_anomaly = np.array([ data_sel[data_key] [['Pouls', 'SpO2']].to_numpy() for data_key in list(data_sel.keys()) ])
 y_anomaly = np.ones (X_anomaly.shape[0], dtype=np.int)
 
-print('ATTACK------------------')
-data_sel = data['all']['attack']
+data_sel = data['train']['attack']
 X_attack = np.array([ data_sel[data_key] [['Pouls', 'SpO2']].to_numpy() for data_key in list(data_sel.keys()) ])
 y_attack = np.ones (X_attack.shape[0], dtype=np.int) * 2
 
-X = np.stack((X_clean, X_anomaly, X_attack))
-y = np.stack((y_clean, y_anomaly, y_attack))
+X = np.concatenate((X_clean, X_anomaly, X_attack), axis=0)
+y = np.concatenate((y_clean, y_anomaly, y_attack), axis=0)
 
-random_forest = RandomForestClassifier(n_estimators=100, max_depth=10)
-random_forest.fit(X, y)
+print(X.shape)
+print(y.shape)
+
+# random_forest = RandomForestClassifier(n_estimators=100, max_depth=10)
+# random_forest.fit(X, y)
+
+# lr = LogisticRegression()
+# lr.fit(X, y)
+
+knn = KNeighborsClassifier()
+knn.fit(X, y)
 
