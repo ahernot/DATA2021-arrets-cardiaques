@@ -77,16 +77,23 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 
 data_sel = data['train']['clean']
-X_clean = np.array([ data_sel[data_key] [['Pouls', 'SpO2']].to_numpy() for data_key in list(data_sel.keys()) ])
+# X_clean = np.array([ data_sel[data_key] [['Pouls', 'SpO2']].to_numpy() for data_key in list(data_sel.keys()) ])
+X_clean = np.array([ np.concatenate((data_sel[data_key]['Pouls'].to_numpy(), data_sel[data_key]['SpO2'].to_numpy())) for data_key in list(data_sel.keys()) ])
+print(X_clean.shape)
 y_clean = np.zeros (X_clean.shape[0], dtype=np.int)
 
 data_sel = data['train']['anomaly']
-X_anomaly = np.array([ data_sel[data_key] [['Pouls', 'SpO2']].to_numpy() for data_key in list(data_sel.keys()) ])
+# X_anomaly = np.array([ data_sel[data_key] [['Pouls', 'SpO2']].to_numpy() for data_key in list(data_sel.keys()) ])
+X_anomaly = np.array([ np.concatenate((data_sel[data_key]['Pouls'].to_numpy(), data_sel[data_key]['SpO2'].to_numpy())) for data_key in list(data_sel.keys()) ])
 y_anomaly = np.ones (X_anomaly.shape[0], dtype=np.int)
+print(X_anomaly.shape)
+
 
 data_sel = data['train']['attack']
-X_attack = np.array([ data_sel[data_key] [['Pouls', 'SpO2']].to_numpy() for data_key in list(data_sel.keys()) ])
+# X_attack = np.array([ data_sel[data_key] [['Pouls', 'SpO2']].to_numpy() for data_key in list(data_sel.keys()) ])
+X_attack = np.array([ np.concatenate((data_sel[data_key]['Pouls'].to_numpy(), data_sel[data_key]['SpO2'].to_numpy())) for data_key in list(data_sel.keys()) ])
 y_attack = np.ones (X_attack.shape[0], dtype=np.int) * 2
+print(X_attack.shape)
 
 X = np.concatenate((X_clean, X_anomaly, X_attack), axis=0)
 y = np.concatenate((y_clean, y_anomaly, y_attack), axis=0)

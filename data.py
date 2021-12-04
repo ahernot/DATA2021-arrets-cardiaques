@@ -69,6 +69,9 @@ class Data:
                 df = pd.read_csv(filepath)
                 if features: df = df[features]
 
+
+                # TODO: need to interpolate / fill NaN values
+
                 # Add to dictionary
                 data_dict[label_str][filename] = df
 
