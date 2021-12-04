@@ -73,8 +73,12 @@ from sklearn.ensemble import RandomForestClassifier
 print('CLEAN------------------')
 
 data_sel = data['all']['clean']
+for data_key in list(data_sel.keys()):
+    a = data_sel[data_key] [['Pouls', 'SpO2']].to_numpy()
+    print(a.shape)
 
-X_clean = np.stack(( data_sel[data_key] [['Pouls', 'SpO2']].to_numpy() for data_key in list(data_sel.keys()) ))
+X_clean = np.array([ data_sel[data_key] [['Pouls', 'SpO2']].to_numpy() for data_key in list(data_sel.keys()) ])
+print(X_clean.shape)
 y_clean = np.zeros (X_clean.shape[0], dtype=np.int)
 
 print('ANOMALY------------------')
