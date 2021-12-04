@@ -4,8 +4,9 @@ import pickle
 import os
 import time
 
+from operator import itemgetter
 
-from data_import import read_data
+
 from functions import clamp
 from preferences import *
 
@@ -33,6 +34,11 @@ class Data:
     # def __repr__ (self):
     #     pass
 
+    def __getitem__ (self, label, kind='all'):
+        if   kind.lower() == 'all':   return self.data_dict.get(label, None)
+        elif kind.lower() == 'train': return self.data_train_dict.get(label, None)
+        elif kind.lower() == 'test':  return self.data_test_dict.get(label, None)
+
     @classmethod
     def from_folder (cls, dirpath, labels, **kwargs):
         """
@@ -48,7 +54,6 @@ class Data:
         data_dict = dict(( (label, dict()) for label in labels ))
 
         for label_str in labels:
-            print(label_str)
             data_path = os.path.join(dirpath, label_str)
 
             for file in os.listdir(data_path):
@@ -82,6 +87,7 @@ class Data:
             pickle.dump(self, archive)
         return filepath
 
+
     def split_train_test (self, train_proportion: float = 0.1, **kwargs):
         """
         Create train and test sets from data dictionary (train-centered).
@@ -94,22 +100,25 @@ class Data:
         shuffle = kwargs.get('shuffle', False)
 
         self.data_train_dict, self.data_test_dict = dict(), dict()
-        for label in self.labels:
+        for label_str in self.labels:
 
             # Read data
-            data = self.data_dict[label]
-            data_len = len(data)
+            # label_dict = self.data_dict[label]
+            # data_len = len(data)
+            datapoints = list(self.data_dict[label_str].keys())
+            data_len = len(datapoints)
 
             # Calculate train and test set lengths
             data_train_len = int(data_len * train_proportion)
             data_train_len = clamp (data_train_len, 1, data_len-1)
 
             # Create train and test sets
-            if shuffle: rd.shuffle(data)
-            #TODO
-            ##self.data_train_dict[label] = data[:data_train_len]
-            ##self.data_test_dict [label] = data[data_train_len:]
+            if shuffle: rd.shuffle(datapoints)
 
+            datapoints_train = datapoints[:data_train_len]
+            datapoints_test  = datapoints[data_train_len:]
+            self.data_train_dict[label_str] = dict(( (label, self.data_dict[label_str][label]) for label in datapoints_train))
+            self.data_test_dict[label_str]  = dict(( (label, self.data_dict[label_str][label]) for label in datapoints_test))
 
 
 
@@ -118,3 +127,7 @@ for key in data.data_dict:
     print(key)
     print(data.data_dict[key].__len__())
 data.split_train_test()
+
+
+print(data.__getitem__('clean', kind='train').__len__())
+print(data.data_train_dict.keys())
