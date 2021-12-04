@@ -7,6 +7,12 @@ from functions import clamp
 TRAIN_PROPORTION = 0.1  # train on 10% of data
 
 
+
+
+class Data:
+    pass
+
+
 def create_train_test_sets (data_dict: dict, train_proportion: float = 0.1, **kwargs):
     """
     Create train and test sets from data dictionary (train-centered).
@@ -18,8 +24,7 @@ def create_train_test_sets (data_dict: dict, train_proportion: float = 0.1, **kw
 
     shuffle = kwargs.get('shuffle', False)
 
-    data_train_dict = dict([(key, list()) for key in data_dict.keys()])
-    data_test_dict  = data_train_dict.copy()
+    data_train_dict, data_test_dict = dict(), dict()
     for label in data_dict.keys():
 
         # Read data
@@ -32,18 +37,20 @@ def create_train_test_sets (data_dict: dict, train_proportion: float = 0.1, **kw
 
         # Create train and test sets
         if shuffle: rd.shuffle(data)
-        data_train_dict[label] .append(data[:data_train_len])
-        data_test_dict [label] .append(data[data_train_len:])
+        data_train_dict[label] = data[:data_train_len]
+        data_test_dict [label] = data[data_train_len:]
     
     return data_train_dict, data_test_dict
 
+
+
+def create_windows (vals, window_len):
+    pass
 
 
 
 # Create dictionary of data
 data_dict = read_data()
 
+# Create train and test sets
 data_train_dict, data_test_dict = create_train_test_sets (data_dict)
-for key in data_train_dict.keys():
-    print(f'train {key}:', data_train_dict[key].__len__())
-    print(f'test {key}:', data_test_dict[key].__len__())
