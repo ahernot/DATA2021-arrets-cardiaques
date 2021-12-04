@@ -8,14 +8,9 @@ from operator import itemgetter
 
 
 from functions import clamp
+from visualisation import plot_df
 from preferences import *
 
-
-label_dict = {
-    'clean': 0,
-    'anomaly': 1,
-    'attack': 2
-}
 
 
 class Data:
@@ -27,17 +22,17 @@ class Data:
         self.name = f'data-{int(time.time())}'
 
         self.labels = list(data_dict.keys())
-        self.data_dict = data_dict
+        self.__data_dict = data_dict
 
         # self.features ?
 
     # def __repr__ (self):
     #     pass
 
-    def __getitem__ (self, label, kind='all'):
-        if   kind.lower() == 'all':   return self.data_dict.get(label, None)
-        elif kind.lower() == 'train': return self.data_train_dict.get(label, None)
-        elif kind.lower() == 'test':  return self.data_test_dict.get(label, None)
+    def __getitem__ (self, kind):
+        if   kind.lower() == 'all':   return self.__data_dict
+        elif kind.lower() == 'train': return self.__data_train_dict
+        elif kind.lower() == 'test':  return self.__data_test_dict
 
     @classmethod
     def from_folder (cls, dirpath, labels, **kwargs):
@@ -99,13 +94,13 @@ class Data:
 
         shuffle = kwargs.get('shuffle', False)
 
-        self.data_train_dict, self.data_test_dict = dict(), dict()
+        self.__data_train_dict, self.__data_test_dict = dict(), dict()
         for label_str in self.labels:
 
             # Read data
-            # label_dict = self.data_dict[label]
+            # label_dict = self.__data_dict[label]
             # data_len = len(data)
-            datapoints = list(self.data_dict[label_str].keys())
+            datapoints = list(self.__data_dict[label_str].keys())
             data_len = len(datapoints)
 
             # Calculate train and test set lengths
@@ -117,17 +112,6 @@ class Data:
 
             datapoints_train = datapoints[:data_train_len]
             datapoints_test  = datapoints[data_train_len:]
-            self.data_train_dict[label_str] = dict(( (label, self.data_dict[label_str][label]) for label in datapoints_train))
-            self.data_test_dict[label_str]  = dict(( (label, self.data_dict[label_str][label]) for label in datapoints_test))
+            self.__data_train_dict[label_str] = dict(( (label, self.__data_dict[label_str][label]) for label in datapoints_train))
+            self.__data_test_dict[label_str]  = dict(( (label, self.__data_dict[label_str][label]) for label in datapoints_test))
 
-
-
-data = Data.from_folder('src/data-2', labels=label_dict, features=SELECTED_FEATURES)
-for key in data.data_dict:
-    print(key)
-    print(data.data_dict[key].__len__())
-data.split_train_test()
-
-
-print(data.__getitem__('clean', kind='train').__len__())
-print(data.data_train_dict.keys())
