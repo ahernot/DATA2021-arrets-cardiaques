@@ -35,13 +35,8 @@ class Data:
     #     pass
 
     def __getitem__ (self, kind):
-        if   kind.lower() == 'all':   return self.__data_dict
-        elif kind.lower() == 'train':
-            if self.__data_wtrain_dict: return self.__data_wtrain_dict
-            else: return self.__data_train_dict
-        elif kind.lower() == 'test': 
-            if self.__data_wtest_dict: return self.__data_wtest_dict
-            else: return self.__data_test_dict
+        if self.__data_wdict: return self.__data_wdict
+        else: return self.__data_dict
 
     @classmethod
     def from_folder (cls, dirpath, labels, **kwargs):
@@ -144,39 +139,26 @@ class Data:
 
 
     def make_windows(self, window_size: int):
-        # only applied to train and test data
-        if not self.__data_train_dict: return
-        
-        self.__data_wtrain_dict, self.__data_wtest_dict = dict(), dict()
+
+        self.__data_wdict = dict()
         for label_str in self.labels:
 
             # Init windowed dictionaries
-            self.__data_wtrain_dict[label_str] = dict()
-            self.__data_wtest_dict[label_str]  = dict()
+            self.__data_wdict[label_str] = dict()
 
             # Get datapoints
-            datapoints_train = list(self.__data_train_dict[label_str].keys())
-            datapoints_test  = list(self.__data_test_dict[label_str].keys())
+            datapoints = list(self.__data_dict[label_str].keys())
 
-            for datapoint in datapoints_train:
-                df = self.__data_train_dict[label_str][datapoint]
-
-                window_start = 0
-                wid = 0
-                while window_start + window_size <= df.shape[0]:
-                    self.__data_wtrain_dict[label_str][f'{datapoint}-{wid}'] = df[window_start:window_start+window_size]
-                    window_start += window_size
-                    wid += 1
-
-            for datapoint in datapoints_test:
-                df = self.__data_test_dict[label_str][datapoint]
+            for datapoint in datapoints:
+                df = self.__data_dict[label_str][datapoint]
 
                 window_start = 0
                 wid = 0
                 while window_start + window_size <= df.shape[0]:
-                    self.__data_wtest_dict[label_str][f'{datapoint}-{wid}'] = df[window_start:window_start+window_size]
+                    self.__data_wdict[label_str][f'{datapoint}-{wid}'] = df[window_start:window_start+window_size]
                     window_start += window_size
                     wid += 1
+
 
 
 

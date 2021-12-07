@@ -13,7 +13,8 @@ data = Data.from_folder('src/data-2', labels=label_dict, features=SELECTED_FEATU
 data.preprocess()
 
 data_train, data_test = data.split_train_test()
-# data.make_windows(window_size=100)
+# data_train.make_windows(window_size=100)
+# data_test .make_windows(window_size=100)
 
 PRINT_DATA_LEN = False
 if PRINT_DATA_LEN:
