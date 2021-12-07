@@ -7,9 +7,12 @@
 
 ## Available classifiers
 * GAN
-* Regression
+* Logistic Regression
 * Random forest > Random isolation forest
 * kNN
+
+* sfft
+* wavelets
 
 
 ## Process
