@@ -95,7 +95,21 @@ class Data:
         return filepath
 
 
-    def split_train_test (self, train_proportion: float = 0.1, **kwargs):
+    def preprocess (self):
+
+        # Interpolate missing datapoints (NaN)
+        for label_str in self.labels: #3
+            datapoints = list(self.__data_dict[label_str].keys())
+            
+            for datapoint in datapoints:
+
+                a = self.__data_dict[label_str][datapoint]
+                a['Pouls'].interpolate(method='slinear', inplace=True)
+                a['SpO2'].interpolate(method='slinear', inplace=True)
+
+
+
+    def split_train_test (self, train_proportion: float = 0.1, **kwargs):  # needs to return two Data objects: one for train, one for test
         """
         Create train and test sets from data dictionary (train-centered).
         :param data_dict: Data dictionary {label:int => list(dataframe)}
@@ -106,12 +120,10 @@ class Data:
 
         shuffle = kwargs.get('shuffle', False)
 
-        self.__data_train_dict, self.__data_test_dict = dict(), dict()
+        data_train_dict, data_test_dict = dict(), dict()
         for label_str in self.labels:
 
             # Read data
-            # label_dict = self.__data_dict[label]
-            # data_len = len(data)
             datapoints = list(self.__data_dict[label_str].keys())
             data_len = len(datapoints)
 
@@ -124,8 +136,11 @@ class Data:
 
             datapoints_train = datapoints[:data_train_len]
             datapoints_test  = datapoints[data_train_len:]
-            self.__data_train_dict[label_str] = dict(( (label, self.__data_dict[label_str][label]) for label in datapoints_train))
-            self.__data_test_dict[label_str]  = dict(( (label, self.__data_dict[label_str][label]) for label in datapoints_test))
+            data_train_dict[label_str] = dict(( (label, self.__data_dict[label_str][label]) for label in datapoints_train))
+            data_test_dict[label_str]  = dict(( (label, self.__data_dict[label_str][label]) for label in datapoints_test))
+
+        # return {'train': Data(data_dict=data_train_dict), 'test': Data(data_dict=data_test_dict)}
+        return Data(data_dict=data_train_dict), Data(data_dict=data_test_dict)
 
 
     def make_windows(self, window_size: int):
@@ -170,3 +185,12 @@ class Data:
 # print(data['train']['clean'].__len__())
 # data.make_windows(window_size=100)
 # print(data['train']['clean'].__len__())
+
+
+
+
+# clustering sur les coefs de Fourier?
+# regarder les coefs de la PCA
+# wavelet packets
+
+# sliding average of pulse
