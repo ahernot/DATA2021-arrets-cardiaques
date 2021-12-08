@@ -1,6 +1,6 @@
 SRC_PATH = 'src'
 
-SELECTED_FEATURES = ['Pouls', 'SpO2']
+SELECTED_FEATURES = ['Pouls'] # ['Pouls', 'SpO2']
 
 
 label_dict = {

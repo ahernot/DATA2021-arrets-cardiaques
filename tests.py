@@ -89,20 +89,13 @@ y_clean = np.zeros (X_clean.shape[0], dtype=np.int)
 
 print(X_clean.shape, y_clean.shape)
 
-print(X_clean)
-print(np.isnan(X_clean).any())
-for id, window in enumerate(X_clean):
-    if np.isnan(window).any():
-        print(id)
-
 knn = KNeighborsClassifier(n_neighbors=10)
 knn.fit(X_clean, y_clean)
 
-
-# ds = data_test['clean']
-# X_test = np.array([ ds[datapoint]['Pouls'].to_numpy() for datapoint in list(ds.keys()) ])
-# p = knn.predict(X_test)
-# print(p)
+ds = data_test['clean']
+X_test = np.array([ ds[datapoint]['Pouls'].to_numpy() for datapoint in list(ds.keys()) ])
+p = knn.predict(X_test)
+print(p.shape, p)
 
 
 

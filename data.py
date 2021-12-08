@@ -17,7 +17,7 @@ class Data:
 
     savedir = 'src/bin'
     
-    def __init__ (self, data_dict: dict):
+    def __init__ (self, data_dict: dict):#, features: list):
         # Generate unique name
         self.name = f'data-{int(time.time())}'
 
@@ -25,7 +25,7 @@ class Data:
         self.__data_dict = data_dict
         self.__data_wdict = None
 
-        # self.features ?
+        #self.features = features  # store an array of features to keep / to preprocess for
 
     # def __repr__ (self):
     #     pass
@@ -61,9 +61,6 @@ class Data:
                 df = pd.read_csv(filepath)
                 if features: df = df[features]
 
-
-                # TODO: need to interpolate / fill NaN values
-
                 # Add to dictionary
                 data_dict[label_str][filename] = df
 
@@ -95,9 +92,14 @@ class Data:
             
             for datapoint in datapoints:
 
+                #TODO: interpolate only on selected features in self.features
+
                 a = self.__data_dict[label_str][datapoint]
-                a['Pouls'].interpolate(method='slinear', inplace=True)#, limit=100000, limit_direction='both')
-                a['SpO2'].interpolate(method='slinear', inplace=True)#, limit=100000, limit_direction='both')
+
+                for col in a.columns:  #TODO: do away with this for loop by vectorising the interpolation
+
+                    a[col].interpolate(method='slinear', inplace=True)#, limit=100000, limit_direction='both')
+                    a[col].interpolate(method='slinear', inplace=True)#, limit=100000, limit_direction='both')
 
                 # Delete datapoint if still contains NaN (= if leading or trailing NaN)
                 if a.isnull().values.any():
