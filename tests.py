@@ -80,24 +80,28 @@ if PLOT_AVG:
 
 
 
+########## kNN
+RUN_KNN = False
+if RUN_KNN:
+    from sklearn.neighbors import KNeighborsClassifier
 
-from sklearn.neighbors import KNeighborsClassifier
+    # Run KNN
+    knn = KNeighborsClassifier(n_neighbors=1)#n_neighbors=10)
+    knn.fit(data_train.X, data_train.y)
+    pred = knn.predict(data_test.X)
 
-# Run KNN
-knn = KNeighborsClassifier(n_neighbors=1)#n_neighbors=10)
-knn.fit(data_train.X, data_train.y)
-pred = knn.predict(data_test.X)
-
-from ahlearn.scoring import Metrics
-metrics = Metrics(data_test.y, pred)
-print(metrics)
-
-
-
-
+    from ahlearn.scoring import Metrics
+    metrics = Metrics(data_test.y, pred)
+    print(metrics)
 
 
 
+
+########## PCA
+from sklearn.decomposition import PCA
+pca = PCA (n_components=2, svd_solver='full')
+pca.fit(data_train.X)
+print(pca.singular_values_)
 
 
 
