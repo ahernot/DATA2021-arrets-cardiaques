@@ -23,20 +23,17 @@ class Data:
 
         self.labels = list(data_dict.keys())
         self.__data_dict = data_dict
-
-        self.__data_train_dict  = None
-        self.__data_test_dict   = None
-        self.__data_wtrain_dict = None
-        self.__data_wtest_dict  = None
+        self.__data_wdict = None
 
         # self.features ?
 
     # def __repr__ (self):
     #     pass
 
-    def __getitem__ (self, kind):
-        if self.__data_wdict: return self.__data_wdict
-        else: return self.__data_dict
+    def __getitem__ (self, label_str):
+        d = self.__data_dict
+        if self.__data_wdict: d = self.__data_wdict
+        return d.get(label_str, None)
 
     @classmethod
     def from_folder (cls, dirpath, labels, **kwargs):
@@ -99,8 +96,12 @@ class Data:
             for datapoint in datapoints:
 
                 a = self.__data_dict[label_str][datapoint]
-                a['Pouls'].interpolate(method='slinear', inplace=True)
-                a['SpO2'].interpolate(method='slinear', inplace=True)
+                a['Pouls'].interpolate(method='slinear', inplace=True)#, limit=100000, limit_direction='both')
+                a['SpO2'].interpolate(method='slinear', inplace=True)#, limit=100000, limit_direction='both')
+
+                # Delete datapoint if still contains NaN (= if leading or trailing NaN)
+                if a.isnull().values.any():
+                    del self.__data_dict[label_str][datapoint]
 
 
 
