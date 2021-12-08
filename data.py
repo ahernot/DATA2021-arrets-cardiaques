@@ -179,3 +179,9 @@ class Data:
 # wavelet packets
 
 # sliding average of pulse
+
+
+
+
+
+# TODO: PCA

@@ -83,20 +83,47 @@ if PLOT_AVG:
 
 from sklearn.neighbors import KNeighborsClassifier
 
+
+# Create training data lists
 data_sel = data_train['clean']
-X_clean = np.array([ data_sel[datapoint]['Pouls'].to_numpy() for datapoint in list(data_sel.keys()) ])
-y_clean = np.zeros (X_clean.shape[0], dtype=np.int)
+Xtr_clean = np.array([ data_sel[datapoint]['Pouls'].to_numpy() for datapoint in list(data_sel.keys()) ])
+ytr_clean = np.zeros (Xtr_clean.shape[0], dtype=np.int)
+# data_sel = data_train['anomaly']
+# Xtr_anomaly = np.array([ data_sel[datapoint]['Pouls'].to_numpy() for datapoint in list(data_sel.keys()) ])
+# ytr_anomaly = np.ones (Xtr_anomaly.shape[0], dtype=np.int)
+data_sel = data_train['attack']
+Xtr_attack = np.array([ data_sel[datapoint]['Pouls'].to_numpy() for datapoint in list(data_sel.keys()) ])
+ytr_attack = np.ones (Xtr_attack.shape[0], dtype=np.int) * 1
 
-print(X_clean.shape, y_clean.shape)
+X_train = np.concatenate((Xtr_clean, Xtr_attack), axis=0)
+y_train = np.concatenate((ytr_clean, ytr_attack), axis=0)
+print(X_train.shape, y_train.shape)
 
-knn = KNeighborsClassifier(n_neighbors=10)
-knn.fit(X_clean, y_clean)
 
-ds = data_test['clean']
-X_test = np.array([ ds[datapoint]['Pouls'].to_numpy() for datapoint in list(ds.keys()) ])
-p = knn.predict(X_test)
-print(p.shape, p)
+# Create testing data lists
+data_sel = data_test['clean']
+Xte_clean = np.array([ data_sel[datapoint]['Pouls'].to_numpy() for datapoint in list(data_sel.keys()) ])
+yte_clean = np.zeros (Xte_clean.shape[0], dtype=np.int)
+# data_sel = data_test['anomaly']
+# Xte_anomaly = np.array([ data_sel[datapoint]['Pouls'].to_numpy() for datapoint in list(data_sel.keys()) ])
+# yte_anomaly = np.ones (Xte_anomaly.shape[0], dtype=np.int)
+data_sel = data_test['attack']
+Xte_attack = np.array([ data_sel[datapoint]['Pouls'].to_numpy() for datapoint in list(data_sel.keys()) ])
+yte_attack = np.ones (Xte_attack.shape[0], dtype=np.int) * 1
 
+X_test = np.concatenate((Xte_clean, Xte_attack), axis=0)
+y_test = np.concatenate((yte_clean, yte_attack), axis=0)
+
+
+
+# Run KNN
+knn = KNeighborsClassifier(n_neighbors=1)#n_neighbors=10)
+knn.fit(X_train, y_train)
+pred = knn.predict(X_test)
+
+from ahlearn.scoring import Metrics
+m = Metrics(y_test, pred)
+print(m)
 
 
 
