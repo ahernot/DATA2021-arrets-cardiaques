@@ -1,4 +1,5 @@
 import random as rd
+import numpy as np
 import pandas as pd
 import pickle
 import os
@@ -17,13 +18,18 @@ class Data:
 
     savedir = 'src/bin'
     
-    def __init__ (self, data_dict: dict):#, features: list):
+    def __init__ (self, data_dict: dict, label_dict: dict):#, features: list):
         # Generate unique name
         self.name = f'data-{int(time.time())}'
 
         self.labels = list(data_dict.keys())
+        self.label_dict = label_dict
+
         self.__data_dict = data_dict
         self.__data_wdict = None
+
+        self.X = None
+        self.y = None
 
         #self.features = features  # store an array of features to keep / to preprocess for
 
@@ -45,6 +51,7 @@ class Data:
 
         features = kwargs.get('features', None)
         filetype = kwargs.get('filetype', 'csv')
+        if type(labels) != dict: labels = dict((l for l in zip(labels, range(len(labels)))))  # assign arbitrary label values
 
         # Read labels from folder
         data_dict = dict(( (label, dict()) for label in labels ))
@@ -64,7 +71,7 @@ class Data:
                 # Add to dictionary
                 data_dict[label_str][filename] = df
 
-        return cls (data_dict=data_dict)
+        return cls (data_dict=data_dict, label_dict=labels)
 
     @classmethod
     def from_pickle (cls, filepath: str):
@@ -138,11 +145,13 @@ class Data:
             data_test_dict[label_str]  = dict(( (label, self.__data_dict[label_str][label]) for label in datapoints_test))
 
         # return {'train': Data(data_dict=data_train_dict), 'test': Data(data_dict=data_test_dict)}
-        return Data(data_dict=data_train_dict), Data(data_dict=data_test_dict)
+        return Data(data_dict=data_train_dict, label_dict=self.label_dict), Data(data_dict=data_test_dict, label_dict=self.label_dict)
 
 
     def make_windows(self, window_size: int):
 
+        X_dict, y_dict = dict(), dict()
+        
         self.__data_wdict = dict()
         for label_str in self.labels:
 
@@ -162,6 +171,16 @@ class Data:
                     window_start += window_size
                     wid += 1
 
+
+            # Generate X and y for label label_str
+            X = np.array([ self.__data_wdict[label_str][datapoint]['Pouls'].to_numpy() for datapoint in list(self.__data_wdict[label_str].keys()) ])
+            y = np.ones(X.shape[0], dtype=np.int) * self.label_dict[label_str]
+            X_dict[label_str] = X
+            y_dict[label_str] = y
+
+        # Generate
+        self.X = np.concatenate(list(X_dict.values()), axis=0)
+        self.y = np.concatenate(list(y_dict.values()), axis=0)
 
 
 
