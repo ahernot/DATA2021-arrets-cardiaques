@@ -98,11 +98,16 @@ if RUN_KNN:
 
 
 ########## PCA
-from sklearn.decomposition import PCA
-pca = PCA (n_components=2, svd_solver='full')
-pca.fit(data_train.X)
-print(pca.singular_values_)
+RUN_PCA = True
+if RUN_PCA:
+    from sklearn.decomposition import PCA
+    
+    pca = PCA (n_components=10, svd_solver='full')
+    pca.fit(data_train.X)
+    print(pca.singular_values_)
 
+    X_t = pca.transform(data_train.X)
+    print(data_train.X.shape, X_t.shape)
 
 
 
