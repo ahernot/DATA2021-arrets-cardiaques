@@ -7,6 +7,8 @@ from functions import moving_avg_kernel
 
 from preferences import *
 from visualisation import plot_df
+from metrics import get_metrics
+
 
 
 
@@ -16,47 +18,13 @@ data = Data.from_folder('src/data-2', labels=label_dict, features=SELECTED_FEATU
 # PREPROCESS DATA: gap filling
 data.preprocess()
 
+# Split train and test data
 data_train, data_test = data.split_train_test()
 data_train.make_windows(window_size=100)
 data_test .make_windows(window_size=100)
 
-PRINT_DATA_LEN = False
-if PRINT_DATA_LEN:
-    for key in data.labels:
-        print(key)
-        print(data[key].__len__())
-
-PLOT_DATA = False
-if PLOT_DATA:
-    plt.figure(figsize=(15, 10))
-    data_sel = data['clean']
-    for data_key in list(data_sel.keys()):
-        df = data_sel[data_key]
-        plt.title('clean')
-        plt.plot(df.index, df['Pouls'], c='blue')
-        plt.plot(df.index, df['SpO2'], c='green')
-        # plot_df(df, title=f'clean - {data_key}', ylim=(60, 200))
-    plt.show()
-
-    plt.figure(figsize=(15, 10))
-    data_sel = data['anomaly']
-    for data_key in list(data_sel.keys()):
-        df = data_sel[data_key]
-        plt.title('anomaly')
-        plt.plot(df.index, df['Pouls'], c='blue')
-        plt.plot(df.index, df['SpO2'], c='green')
-        # plot_df(df, title=f'attack - {data_key}', ylim=(60, 200))
-    plt.show()
-
-    plt.figure(figsize=(15, 10))
-    data_sel = data['attack']
-    for data_key in list(data_sel.keys()):
-        df = data_sel[data_key]
-        plt.title('attack')
-        plt.plot(df.index, df['Pouls'], c='blue')
-        plt.plot(df.index, df['SpO2'], c='green')
-        # plot_df(df, title=f'attack - {data_key}', ylim=(60, 200))
-    plt.show()
+data_train.generate_metrics(func=get_metrics)
+    
 
 PLOT_AVG = False
 if PLOT_AVG:
@@ -98,7 +66,7 @@ if RUN_KNN:
 
 
 ########## PCA
-RUN_PCA = True
+RUN_PCA = False
 if RUN_PCA:
     from sklearn.decomposition import PCA
     
@@ -110,6 +78,11 @@ if RUN_PCA:
     print(data_train.X.shape, X_t.shape)
 
 
+
+# for w in data_train.X:
+#     plt.figure(figsize=(15, 10))
+#     plt.plot(list(range(w.shape[0])), w)
+#     plt.show()
 
 
 
