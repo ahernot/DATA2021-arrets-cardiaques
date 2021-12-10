@@ -5,8 +5,9 @@ import pickle
 import os
 import time
 
-from operator import itemgetter
-
+from typing import Callable
+import matplotlib.pyplot as plt
+# from operator import itemgetter
 
 from functions import clamp
 from visualisation import plot_df
@@ -90,6 +91,43 @@ class Data:
             pickle.dump(self, archive)
         return filepath
 
+    # def shape (self):
+    #     return self.X.shape
+
+    def size (self):
+        return [(key, len(self[key])) for key in self.labels]
+
+    def plot (self):
+        plt.figure(figsize=(15, 10))
+        data_sel = self['clean']
+        for data_key in list(data_sel.keys()):
+            df = data_sel[data_key]
+            plt.title('clean')
+            plt.plot(df.index, df['Pouls'], c='blue')
+            plt.plot(df.index, df['SpO2'], c='green')
+            # plot_df(df, title=f'clean - {data_key}', ylim=(60, 200))
+        plt.show()
+
+        plt.figure(figsize=(15, 10))
+        data_sel = self['anomaly']
+        for data_key in list(data_sel.keys()):
+            df = data_sel[data_key]
+            plt.title('anomaly')
+            plt.plot(df.index, df['Pouls'], c='blue')
+            plt.plot(df.index, df['SpO2'], c='green')
+            # plot_df(df, title=f'attack - {data_key}', ylim=(60, 200))
+        plt.show()
+
+        plt.figure(figsize=(15, 10))
+        data_sel = self['attack']
+        for data_key in list(data_sel.keys()):
+            df = data_sel[data_key]
+            plt.title('attack')
+            plt.plot(df.index, df['Pouls'], c='blue')
+            plt.plot(df.index, df['SpO2'], c='green')
+            # plot_df(df, title=f'attack - {data_key}', ylim=(60, 200))
+        plt.show()
+
 
     def preprocess (self):
 
@@ -148,9 +186,10 @@ class Data:
         return Data(data_dict=data_train_dict, label_dict=self.label_dict), Data(data_dict=data_test_dict, label_dict=self.label_dict)
 
 
-    def make_windows(self, window_size: int):
-
-        X_dict, y_dict = dict(), dict()
+    def make_windows (self, window_size: int):
+        """
+        Split data into set-width windows
+        """
         
         self.__data_wdict = dict()
         for label_str in self.labels:
@@ -172,15 +211,29 @@ class Data:
                     wid += 1
 
 
+
+    def generate_metrics (self, metrics_func: Callable):
+        """
+        Generate metrics on data (either windowed or not)
+        """
+
+        data_dict = self.__data_dict
+        if self.__data_wdict: data_dict = self.__data_wdict
+                
+        X_dict, y_dict = dict(), dict()
+
+        # Generate self.X, self.y
+        for label_str in self.labels:
+
             # Generate X and y for label label_str
-            X = np.array([ self.__data_wdict[label_str][datapoint]['Pouls'].to_numpy() for datapoint in list(self.__data_wdict[label_str].keys()) ])
+            X = np.array([ metrics_func(data_dict[label_str][datapoint]) for datapoint in list(data_dict[label_str].keys()) ])
             y = np.ones(X.shape[0], dtype=np.int) * self.label_dict[label_str]
             X_dict[label_str] = X
             y_dict[label_str] = y
 
-        # Generate
         self.X = np.concatenate(list(X_dict.values()), axis=0)
         self.y = np.concatenate(list(y_dict.values()), axis=0)
+                
 
 
 
