@@ -8,6 +8,7 @@ from sklearn import preprocessing
 
 
 DER_KERNEL = np.array([-1/2, 0, 1/2])
+# get function to generate DER_KERNEL
 
 
 def get_metrics (df: pd.DataFrame):
@@ -16,30 +17,28 @@ def get_metrics (df: pd.DataFrame):
 
     # Get moments of hr
     hr_stdev = np.std(hr)
-    hr_avg = np,average(hr)
+    hr_avg = np.average(hr)
 
     # Get max derivative of hr
     hr_der = np.convolve(hr, DER_KERNEL, mode='valid')  # extra crop along edges
-    hr_dev_max = np.max(hr_der)
+    hr_der_max = np.max(hr_der)
 
     #correlation b/w pulse and SpO2
     #   => standardise both and calculate distance between; get avg(L2) / max(L∞) distance
     #TODO: how to calculate correlation between two curves? first order correlatioin with relative evolution of standardfised derivatives?
-    hr_std = preprocessing.StandardScaler().fit(hr.to_numpy().reshape(-1, 1)).transform(hr.to_numpy().reshape(-1, 1))
+    hr_std = preprocessing.StandardScaler().fit(hr.to_numpy().reshape(-1, 1)) .transform(hr.to_numpy().reshape(-1, 1))
     spo2_std  = preprocessing.StandardScaler().fit(spo2.to_numpy().reshape(-1, 1)) .transform(spo2.to_numpy().reshape(-1, 1))
     dist = np.abs(hr_std - spo2_std)
     dist_score = np.linalg.norm(dist)
     
 
     # spectral power density? isn't this a time-averaged spectrogram basically?
-    
-
 
 
     metrics_list = [
         hr_avg,
         hr_stdev,
-        hr_dev_max,
+        hr_der_max,
         dist_score
     ]
 
@@ -58,4 +57,4 @@ and also data.__metrics_dict
 # regarder les coefs de la PCA
 # wavelet packets
 
-# sliding average of pulse
+# sliding average of pulse => smoothed max derivative? or multiple datapoints?

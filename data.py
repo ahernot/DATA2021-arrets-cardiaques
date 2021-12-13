@@ -231,5 +231,6 @@ class Data:
             X_dict[label_str] = X
             y_dict[label_str] = y
 
+
         self.X = np.concatenate(list(X_dict.values()), axis=0)
         self.y = np.concatenate(list(y_dict.values()), axis=0)

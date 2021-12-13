@@ -19,15 +19,15 @@ data = Data.from_folder('src/data-2', labels=label_dict, features=SELECTED_FEATU
 data.preprocess()
 
 # Split train and test data
-data_train, data_test = data.split_train_test()
+data_train, data_test = data.split_train_test(train_proportion=0.1)
 data_train.make_windows(window_size=100)
 data_test .make_windows(window_size=100)
 
 data_train.generate_metrics(metrics_func=get_metrics)
 data_test .generate_metrics(metrics_func=get_metrics)
 
-print(data_train.X)
-    
+# print(data_train.X, data_train.X.shape)
+# print(data_train.y, data_train.y.shape)
 
 PLOT_AVG = False
 if PLOT_AVG:
@@ -52,7 +52,7 @@ if PLOT_AVG:
 
 
 ########## kNN
-RUN_KNN = False
+RUN_KNN = True
 if RUN_KNN:
     from sklearn.neighbors import KNeighborsClassifier
 
