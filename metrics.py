@@ -2,7 +2,10 @@
 
 import numpy as np
 from numpy.lib.function_base import average
+from scipy.signal import correlate
 import pandas as pd
+
+import matplotlib.pyplot as plt
 
 from sklearn import preprocessing
 
@@ -20,6 +23,7 @@ def get_metrics (df: pd.DataFrame):
     hr_avg = np.average(hr)
 
     # Get max derivative of hr
+    spo2_der = np.convolve(spo2, DER_KERNEL, mode='valid')
     hr_der = np.convolve(hr, DER_KERNEL, mode='valid')  # extra crop along edges
     hr_der_max = np.max(hr_der)
 
@@ -28,8 +32,14 @@ def get_metrics (df: pd.DataFrame):
     #TODO: how to calculate correlation between two curves? first order correlatioin with relative evolution of standardfised derivatives?
     hr_std = preprocessing.StandardScaler().fit(hr.to_numpy().reshape(-1, 1)) .transform(hr.to_numpy().reshape(-1, 1))
     spo2_std  = preprocessing.StandardScaler().fit(spo2.to_numpy().reshape(-1, 1)) .transform(spo2.to_numpy().reshape(-1, 1))
-    dist = np.abs(hr_std - spo2_std)
-    dist_score = np.linalg.norm(dist)
+
+    # plt.figure(figsize=(15, 10))
+    # plt.plot(range(hr_std.__len__()), hr_std)
+    # plt.plot(range(spo2_std.__len__()), spo2_std)
+    # plt.show()
+    
+    # dist = np.abs(hr_std - spo2_std)
+    # dist_score = np.linalg.norm(dist)
     
 
     # spectral power density? isn't this a time-averaged spectrogram basically?
@@ -38,9 +48,35 @@ def get_metrics (df: pd.DataFrame):
     metrics_list = [
         hr_avg,
         hr_stdev,
-        hr_der_max,
-        dist_score
+        hr_der_max
     ]
+
+
+    # print(hr.shape, spo2.shape)
+    
+
+    # TODO: cross-correlate both derivatives
+    # plt.figure(figsize=(15, 10))
+    # plt.plot(range(spo2_der.__len__()), spo2_der)
+    # plt.plot(range(hr_der.__len__()), hr_der)
+    # plt.show()
+
+    corr = correlate(hr, spo2, mode='same')
+    print(corr)
+    corr /= np.max(corr)
+    print(corr.__len__())
+    print(corr)
+    plt.figure()
+    plt.plot(range(corr.__len__()), corr)
+    plt.plot(range(hr.__len__()), hr/np.max(hr))
+    plt.plot(range(spo2.__len__()), spo2/np.max(spo2))
+    plt.show()
+
+    # plt.figure()
+    # plt.plot(range(hr.__len__()), hr)
+    # plt.plot(range(spo2.__len__()), spo2)
+    # plt.show()
+
 
     return np.array(metrics_list)
 
