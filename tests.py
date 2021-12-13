@@ -23,7 +23,10 @@ data_train, data_test = data.split_train_test()
 data_train.make_windows(window_size=100)
 data_test .make_windows(window_size=100)
 
-data_train.generate_metrics(func=get_metrics)
+data_train.generate_metrics(metrics_func=get_metrics)
+data_test .generate_metrics(metrics_func=get_metrics)
+
+print(data_train.X)
     
 
 PLOT_AVG = False
