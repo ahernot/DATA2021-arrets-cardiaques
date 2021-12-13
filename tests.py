@@ -52,8 +52,8 @@ if PLOT_AVG:
 
 
 ########## kNN
-RUN_KNN = True
-if RUN_KNN:
+RUN_KNN = False
+if RUN_KNN:  # F1 = 0.1
     from sklearn.neighbors import KNeighborsClassifier
 
     # Run KNN
@@ -66,6 +66,24 @@ if RUN_KNN:
     print(metrics)
 
 
+RUN_RDFOREST = True
+if RUN_RDFOREST:  # F1 = 0.07
+    from sklearn.ensemble import RandomForestClassifier
+
+    # Run random forest classifier
+    rd_forest = RandomForestClassifier(n_estimators=10)
+    rd_forest.fit(data_train.X, data_train.y)
+    pred = rd_forest.predict(data_test.X)
+
+    from ahlearn.scoring import Metrics
+    metrics = Metrics(data_test.y, pred)
+    print(metrics)
+
+
+RUN_LOGISTIC_REG = False
+if RUN_LOGISTIC_REG:
+    from sklearn.linear_model import LogisticRegression
+    pass
 
 
 ########## PCA

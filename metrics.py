@@ -45,12 +45,7 @@ def get_metrics (df: pd.DataFrame):
     # spectral power density? isn't this a time-averaged spectrogram basically?
 
 
-    metrics_list = [
-        hr_avg,
-        hr_stdev,
-        hr_der_max
-    ]
-
+    
 
     # print(hr.shape, spo2.shape)
     
@@ -61,21 +56,14 @@ def get_metrics (df: pd.DataFrame):
     # plt.plot(range(hr_der.__len__()), hr_der)
     # plt.show()
 
-    corr = correlate(hr, spo2, mode='same')
-    print(corr)
-    corr /= np.max(corr)
-    print(corr.__len__())
-    print(corr)
-    plt.figure()
-    plt.plot(range(corr.__len__()), corr)
-    plt.plot(range(hr.__len__()), hr/np.max(hr))
-    plt.plot(range(spo2.__len__()), spo2/np.max(spo2))
-    plt.show()
+    corr = correlate(hr, spo2, mode='valid') [0]
 
-    # plt.figure()
-    # plt.plot(range(hr.__len__()), hr)
-    # plt.plot(range(spo2.__len__()), spo2)
-    # plt.show()
+    metrics_list = [
+        hr_avg,
+        hr_stdev,
+        hr_der_max,
+        corr
+    ]
 
 
     return np.array(metrics_list)

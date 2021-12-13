@@ -42,7 +42,7 @@ class Metrics:
         
 
         # Other metrics
-        if self.pos > 0:
+        if self.tpos + self.fpos > 0:
             self.ppv = self.tpos / (self.tpos + self.fpos)  # precision
         else:
             self.ppv = float('nan')
