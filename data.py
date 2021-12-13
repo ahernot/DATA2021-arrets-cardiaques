@@ -233,27 +233,3 @@ class Data:
 
         self.X = np.concatenate(list(X_dict.values()), axis=0)
         self.y = np.concatenate(list(y_dict.values()), axis=0)
-                
-
-
-
-# data = Data.from_folder('src/data-2', labels=label_dict, features=SELECTED_FEATURES)
-# data.split_train_test()
-# print(data['train']['clean'].__len__())
-# data.make_windows(window_size=100)
-# print(data['train']['clean'].__len__())
-
-
-
-
-# clustering sur les coefs de Fourier?
-# regarder les coefs de la PCA
-# wavelet packets
-
-# sliding average of pulse
-
-
-
-
-
-# TODO: PCA
